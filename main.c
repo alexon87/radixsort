@@ -3,7 +3,7 @@
 // Bartlomiej Nowak 22.07.2015
 
 #include <stdio.h>
-#include <stdlib.h>             // atoi
+#include <stdlib.h>                // atoi
 
 // #define DEBUG                   // Debugging messages, comment out to not use them
 
@@ -50,17 +50,17 @@ void sortForDigit(int *argint, int argc, int div) {
     debug_print("counter[%d]=%d", i, counter[i]);
   }
 
-  int *sortedlist=calloc(argc, sizeof(int));
+  int *sortedlist=calloc(argc, sizeof(int));             // Allocate temporary list
   if (!sortedlist) return;
 
   debug_print("Inserting values into resulting array");
   for (int i=argc-1; i>=0; i--) {
-    sortedlist[ counter[ ((argint[i]/div)%10) ]-1 ]=argint[i];  // Insert the value into position
+    sortedlist[ counter[ ((argint[i]/div)%10) ]-1 ]=argint[i];  // Insert the value into position on temp list
     counter[ (argint[i]/div)%10 ]--;                            // Decrement the digit counter
     debug_print("sortedlist[%d]=%d", i, sortedlist[i]);
   }
 
-  for (int i=0; i<argc; i++) argint[i]=sortedlist[i];
+  for (int i=0; i<argc; i++) argint[i]=sortedlist[i];           // Copy sorted values to original list
   free(sortedlist);
 
 }
