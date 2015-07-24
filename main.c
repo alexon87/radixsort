@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>             // atoi
-#include <string.h>             // memset
 
 #define DEBUG                   // Debugging messages, comment out to not use them
 
@@ -23,12 +22,43 @@ int findMax(int *argint, int argc) {
   return max;
 }
 
+//
+// sortForDigit:
+// Takes a pointer to an array of integers and their count as arguments
+// Sorts the array of integers only on a certain digit
+
+void sortForDigit(int *argint, int argc, int div) {
+  for (int i=0; i<10; i++) counter[i]=0;
+
+  debug_print("div==%d Counting occurences", div);
+  for (int i=0; i<argc; i++) {                           // Count the occurences of digits 0-9
+    counter[ (argint[i]/div)%10 ]++;
+    debug_print("counter[%d]++", (argint[i]/div)%10);
+  }
+
+  #ifdef DEBUG
+  for (int i=0; i<10; i++) { debug_print("counter[%d]=%d", i, counter[i]); }
+  #endif
+
+  debug_print("Calculating positions");
+  debug_print("counter[0]=%d", counter[0]);
+  for (int i=1; i<10; i++) {                             // Make counters point to the actual digit positions in resulting array
+    counter[i]+=counter[i-1];                            // by treating each counter value as an offset from previous counter position
+    debug_print("counter[%d]=%d", i, counter[i]);
+  }
+
+  debug_print("Inserting values into resulting array");
+  for (int i=argc-1;i>=0;i--) {
+    sortedlist[ counter[ ((argint[i]/div)%10)-1 ] ]=argint[i];  // Insert the value into position
+    counter[ (argint[i]/div)%10 ]--;                            // Decrement the digit counter
+    debug_print("sortedlist[%d]=%d", i, sortedlist[i])
+  }
+}
 
 //
 // radixSort:
-// Takes an array of integers and their count as arguments
+// Takes a pointer to an array of integers and their count as arguments
 // Sorts the array with increasing numbers
-// Returns allocated and sorted array of integers
 
 int *radixSort(int *argint, int argc) {
 
@@ -38,31 +68,9 @@ int *radixSort(int *argint, int argc) {
 
   debug_print("radixSort: max=%d", max);
 
-  int *sortedlist=calloc(argc, sizeof(int));
-  if (!sortedlist) return NULL;
 
   while ( (max/div)%10>0 ) {                               // For each digit in the array
-
-    for (int i=0; i<10; i++) counter[i]=0;
-
-    debug_print("div==%d Counting occurences", div);
-    for (int i=0; i<argc; i++) {                           // Count the occurences of digits 0-9
-      counter[ (argint[i]/div)%10 ]++;
-      debug_print("counter[%d]++", (argint[i]/div)%10);
-    }
-
-    debug_print("Calculating positions");
-    for (int i=1; i<10; i++) {                             // Make counters point to the actual digit positions in resulting array
-      counter[i]+=counter[i-1];                            // by treating each counter value as an offset from previous counter position
-      debug_print("counter[%d]=%d", i, counter[i]);
-    }
-
-    debug_print("Inserting values into resulting array");
-    for (int i=argc-1;i>=0;i--) {
-      sortedlist[ counter[ ((argint[i]/div)%10) - 1 ] ]=argint[i];  // Insert the value into position
-      counter[ (argint[i]/div)%10 ]--;                        // Decrement the digit counter
-    }
-
+    sortForDigit();
     div*=10;
   }
   return sortedlist;
@@ -80,7 +88,7 @@ int main(int argc, char *argv[]) {
 
   int *sortedlist = radixSort(argint, argc-1);
 
-  printf("sortedlist: ");
+  printf("Sorted list: ");
   for (int i=0; i<argc; i++) printf("%d, ", sortedlist[i]);
   printf("\n");
 
